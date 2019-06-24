@@ -105,7 +105,6 @@ namespace EMonitor.Frames
             {
                 _selectedER = value;
                 IsFilterChanged = true;
-                //if(value == 990) { Dump(); }
                 RaisePropertyChanged(() => SelectedER);
             }
         }
