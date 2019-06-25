@@ -10,6 +10,7 @@ using System.Windows;
 using GalaSoft.MvvmLight.Command;
 using System.Windows.Input;
 using LiveCharts.Defaults;
+using System.Collections.Generic;
 
 namespace EMonitor.Frames
 {
@@ -79,21 +80,6 @@ namespace EMonitor.Frames
             }
         }
 
-        //private int _selectedCostCenter;
-        //public int SelectedCostCenter
-        //{
-        //    get
-        //    {
-        //        return _selectedCostCenter;
-        //    }
-        //    set
-        //    {
-        //        _selectedCostCenter = value;
-        //        IsFilterChanged = true;
-        //        RaisePropertyChanged(() => SelectedCostCenter);
-        //    }
-        //}
-
         private int _selectedER;
         public int SelectedER
         {
@@ -108,10 +94,6 @@ namespace EMonitor.Frames
                 RaisePropertyChanged(() => SelectedER);
             }
         }
-        //private void Dump()
-        //{
-        //    int a = 1;
-        //}
 
         private string _chartCaption;
         public string ChartCaption
@@ -200,22 +182,8 @@ namespace EMonitor.Frames
             }
         }
 
-        private ObservableCollection<CostCenter> _costCenterList;
-        public ObservableCollection<CostCenter> CostCenterList
-        {
-            get
-            {
-                return _costCenterList;
-            }
-            set
-            {
-                _costCenterList = value;
-                RaisePropertyChanged(() => CostCenterList);
-            }
-        }
-
-        private ObservableCollection<ViewYear> _yearList;
-        public ObservableCollection<ViewYear> YearList
+        private List<ViewYear> _yearList;
+        public List<ViewYear> YearList
         {
             get
             {
@@ -260,22 +228,38 @@ namespace EMonitor.Frames
         {
             Labels = new ObservableCollection<string>();
             SeriesCollection = new SeriesCollection();
-            StartYear = DateTime.Now.Year;
-            StartMonth = 1;
-            EndYear = DateTime.Now.Year;
-            EndMonth = DateTime.Now.Month - 1;
-            //SelectedCostCenter = 0;
+            EndYearMonthFill();
+
             SelectedER = 955;
             RBCostIsChecked = false;
             YearListFill();
             MonthListFill();
-            CostCenterListFill();
+
+            MonthUseList = new ObservableCollection<ViewResult>();
+            MonthUseTotalList = new ObservableCollection<ViewResult>();
             MonthUseListFill();
+
+            ERList = new ObservableCollection<EnergyResource>();
             ERListFill();
             DiagrammInit();
             ChartCaptionFill();
             IsChoiseResource = true;
             IsFilterChanged = false;
+        }
+
+        private void EndYearMonthFill()
+        {
+            using (db = new MyDBContext())
+            {
+                db.ViewResults.Load();
+                var qry = (from o in db.ViewResults
+                           orderby o.Year descending, o.Month descending
+                           select new { o.Year, o.Month }).Take(1);
+                EndYear = qry.ToList()[0].Year;
+                EndMonth = qry.ToList()[0].Month;
+            }
+            StartYear = EndMonth == 1? EndYear - 1 : EndYear;
+            StartMonth = 1;
         }
 
         private void MonthListFill()
@@ -293,55 +277,33 @@ namespace EMonitor.Frames
             using (db = new MyDBContext())
             {
                 db.ViewResults.Load();
-                var filterRezult = from o in db.ViewResults
-                           where o.Year * 100 + o.Month >= StartYear * 100 + StartMonth
-                           where o.Year * 100 + o.Month <= EndYear * 100 + EndMonth
-                           where o.IdEnergyResource == SelectedER
-                           //where SelectedCostCenter == 0 ? true : o.IdCostCenter == SelectedCostCenter
 
-                           group o by new { o.IdEnergyResource, o.Period } into gr
-                           orderby gr.Max(m => m.Year), gr.Max(m => m.Month)
-                           select new
-                           {
-                               IdEnergyResource = gr.Key.IdEnergyResource,
-                               Period = gr.Key.Period,
-                               ResourceName = gr.Max(m => m.ResourceName),
-                               Year = gr.Max(m => m.Year),
-                               Month = gr.Max(m => m.Month),
-                               UnitName = gr.Max(m => m.UnitName),
-                               Plan = gr.Sum(m => m.Plan),
-                               Fact = gr.Sum(m => m.Fact),
-                               Difference = gr.Sum(m => m.Difference),
-                               PlanCost = gr.Sum(m => m.PlanCost),
-                               FactCost = gr.Sum(m => m.FactCost),
-                               DifferenceCost = gr.Sum(m => m.DifferenceCost),
-                               IsMain = gr.Max(m => m.IsMain)
-                           };
-
-                MonthUseList = new ObservableCollection<ViewResult>();
+                db.ViewResults.Load();
+                var qrySource = from o in db.ViewResults.ToList()
+                                where o.Year * 100 + o.Month >= StartYear * 100 + StartMonth
+                                where o.Year * 100 + o.Month <= EndYear * 100 + EndMonth
+                                where o.IdEnergyResource == SelectedER
+                                group o by new { o.IdEnergyResource, o.Period } into gr
+                                orderby gr.Max(m => m.Year), gr.Max(m => m.Month)
+                                select new ViewResult
+                                {
+                                    IdEnergyResource = gr.Key.IdEnergyResource,
+                                    Period = gr.Key.Period,
+                                    ResourceName = gr.Max(m => m.ResourceName),
+                                    Year = gr.Max(m => m.Year),
+                                    Month = gr.Max(m => m.Month),
+                                    UnitName = gr.Max(m => m.UnitName),
+                                    Plan = gr.Sum(m => m.Plan),
+                                    Fact = gr.Sum(m => m.Fact),
+                                    Difference = gr.Sum(m => m.Difference),
+                                    PlanCost = gr.Sum(m => m.PlanCost),
+                                    FactCost = gr.Sum(m => m.FactCost),
+                                    DifferenceCost = gr.Sum(m => m.DifferenceCost),
+                                    IsMain = gr.Max(m => m.IsMain)
+                                };
                 MonthUseList.Clear();
+                MonthUseList = Global.ObservableCollection<ViewResult>(qrySource);
 
-                //qry3.ToList().ForEach(x => MonthUseList.Add(x));
-
-                foreach (var row in filterRezult)
-                {
-                    MonthUseList.Add(new ViewResult()
-                    {
-                        Year = row.Year,
-                        Month = row.Month,
-                        Period = Global.MonthName(row.Month) + "." + row.Year,
-                        IdEnergyResource = row.IdEnergyResource,
-                        ResourceName = row.ResourceName,
-                        UnitName = row.UnitName,
-                        Plan = row.Plan,
-                        Fact = row.Fact,
-                        Difference = row.Difference,
-                        PlanCost = row.PlanCost,
-                        FactCost = row.FactCost,
-                        DifferenceCost = row.DifferenceCost
-                    });
-                }
-                MonthUseTotalList = new ObservableCollection<ViewResult>();
                 MonthUseTotalList.Clear();
                 MonthUseTotalList.Add(new ViewResult()
                 {
@@ -362,55 +324,10 @@ namespace EMonitor.Frames
             using (db = new MyDBContext())
             {
                 db.ViewYears.Load();
-
-                var qry2 = from o in db.ViewYears
-                           select new
-                           {
-                               o.Id,
-                               o.Year
-                           };
-                YearList = new ObservableCollection<ViewYear>();
-                YearList.Clear();
-                foreach (var row in qry2)
-                {
-                    YearList.Add(new ViewYear()
-                    {
-                        Id = row.Id,
-                        Year = row.Year
-                    });
-                }
+                YearList = db.ViewYears.Local.ToList();
             }
         }
-        private void CostCenterListFill()
-        {
-            using (db = new MyDBContext())
-            {
-                db.CostCenters.Load();
 
-                var qry2 = from o in db.CostCenters
-                           select new
-                           {
-                               o.Id,
-                               o.IdDepart
-                           };
-                CostCenterList = new ObservableCollection<CostCenter>();
-                CostCenterList.Clear();
-                CostCenterList.Add(new CostCenter()
-                {
-                    Id = 0,
-                    IdDepart = 0
-                });
-
-                foreach (var row in qry2)
-                {
-                    CostCenterList.Add(new CostCenter()
-                    {
-                        Id = row.Id,
-                        IdDepart = row.IdDepart
-                    });
-                }
-            }
-        }
         private void ERListFill()
         {
             using (db = new MyDBContext())
@@ -424,7 +341,6 @@ namespace EMonitor.Frames
                                o.Id,
                                o.Name
                            };
-                ERList = new ObservableCollection<EnergyResource>();
                 ERList.Clear();
                 foreach (var row in qry2)
                 {
@@ -577,7 +493,18 @@ namespace EMonitor.Frames
             }
             string date1 = string.Format("{0: 00}", StartMonth) + "." + StartYear + " г.";
             string date2 = string.Format("{0: 00}", EndMonth) + "." + EndYear + " г.";
-            ChartCaption = string.Format("Потребление '{0}' по {1} за период с: {2} по: {3}, {4}", resName, resCostCenter, date1, date2, unit);
+
+            string period;
+            if (StartYear == EndYear && StartMonth == EndMonth)
+            {
+                period = string.Format("за {0}", date1);
+            }
+            else
+            {
+                period = string.Format("за период с: {0} по: {1}", date1, date2);
+            }
+
+            ChartCaption = string.Format("Потребление '{0}' по {1} {2}, {3}", resName, resCostCenter, period, unit);
         }
 
     }

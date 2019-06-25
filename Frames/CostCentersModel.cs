@@ -210,8 +210,8 @@ namespace EMonitor.Frames
                 RaisePropertyChanged(() => YearList);
             }
         }
-        private List<MonthClass> _monthList;
-        public List<MonthClass> MonthList
+        private ObservableCollection<MonthClass> _monthList;
+        public ObservableCollection<MonthClass> MonthList
         {
             get
             {
@@ -240,7 +240,7 @@ namespace EMonitor.Frames
             YearList = new List<ViewYear>();
             YearListFill();
 
-            MonthList = new List<MonthClass>();
+            MonthList = new ObservableCollection<MonthClass>();
             MonthListFill();
 
             CostCenterList = new List<CostCenter>();

@@ -164,8 +164,8 @@ namespace EMonitor.Frames
                 RaisePropertyChanged(() => YearList);
             }
         }
-        private List<MonthClass> _monthList;
-        public List<MonthClass> MonthList
+        private ObservableCollection<MonthClass> _monthList;
+        public ObservableCollection<MonthClass> MonthList
         {
             get
             {
@@ -192,6 +192,8 @@ namespace EMonitor.Frames
             EndYearMonthFill();
 
             YearListFill();
+
+            MonthList = new ObservableCollection<MonthClass>();
             MonthListFill();
 
             MonthUseERList = new ObservableCollection<ViewResult>();
@@ -223,7 +225,6 @@ namespace EMonitor.Frames
         }
         private void MonthListFill()
         {
-            MonthList = new List<MonthClass>();
             MonthList.Clear();
             for (int i = 1; i <= 12; i++)
             {
