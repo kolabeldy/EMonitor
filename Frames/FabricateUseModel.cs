@@ -273,6 +273,8 @@ namespace EMonitor.Frames
             ERListFill();
             CostCenterListFill();
             MonthUseListFill();
+
+            Labels = new ObservableCollection<string>();
             DiagrammInit();
             ChartCaptionFill();
             IsFilterChanged = false;
@@ -454,7 +456,7 @@ namespace EMonitor.Frames
             {
                 Title = SeriesTitle[i],
                 LineSmoothness = 0,
-                DataLabels = dlina <= 12 ? true : false,
+                DataLabels = true,
                 StrokeThickness = 2.5,
                 //Stroke = System.Windows.Media.Brushes.DeepSkyBlue,
                 Fill = System.Windows.Media.Brushes.AliceBlue,
@@ -468,7 +470,7 @@ namespace EMonitor.Frames
             {
                 Title = SeriesTitle[i + 1],
                 LineSmoothness = 0,
-                DataLabels = dlina <= 12 ? true : false,
+                DataLabels = true,
                 StrokeThickness = 2.5,
                 //Stroke = System.Windows.Media.Brushes.Red,
                 Fill = System.Windows.Media.Brushes.Pink,
@@ -482,7 +484,7 @@ namespace EMonitor.Frames
             {
                 Title = SeriesTitle[i + 2],
                 LineSmoothness = 0,
-                DataLabels = dlina <= 12 ? true : false,
+                DataLabels = true,
                 FontSize = 10,
                 StrokeThickness = 2.5,
                 Foreground = System.Windows.Media.Brushes.Black,
@@ -496,8 +498,16 @@ namespace EMonitor.Frames
             SeriesCollection.Add(ls1);
             SeriesCollection.Add(ls2);
             SeriesCollection.Add(ls3);
+
             Labels.Clear();
-            Labels = new ObservableCollection<string>(MonthUseList.Select(x => x.Period));
+            foreach (var newX in MonthUseList)
+            {
+                Labels.Add(newX.Period.ToString());
+            };
+
+
+            //Labels.Clear();
+            //Labels = ObservableCollection<string>(MonthUseList.Select(x => x.Period));
 
             ChartValues<ObservableValue> ValueYFill(string typeSeries = "")
             {

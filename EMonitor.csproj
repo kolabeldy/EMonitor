@@ -130,6 +130,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DB\Losse.cs" />
     <Compile Include="DB\CostCenter.cs" />
     <Compile Include="DB\EnergyResource.cs" />
     <Compile Include="DB\MyDBContext.cs" />

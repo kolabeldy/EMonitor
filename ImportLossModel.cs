@@ -16,7 +16,7 @@ namespace EMonitor
         private MyDBContext db;
         public ImportLossModel()
         {
-            string fahName = "FAHXXXXX.xls";
+            string fahName = "FAH0511E.xls";
             string lastPeriod = null;
             string newPeriod = null;
             using (db = new MyDBContext())
@@ -56,23 +56,26 @@ namespace EMonitor
                 xlWB = xlApp.Workbooks.Open(xlFileName); //открываем наш файл           
                 xlSht = xlWB.ActiveSheet; //или так xlSht = xlWB.ActiveSheet //активный лист
 
-                Rng = (Excel.Range)xlSht.Range["I1"];
-                string nameFAH = Rng.Value.ToString().Trim();
-                if(nameFAH != fahName)
-                {
-                    MessageBoxResult result2 = System.Windows.MessageBox.Show("Это не " + fahName, "Неверный файл", MessageBoxButton.OK, MessageBoxImage.Information);
-                    xlWB.Close(true);
-                    xlApp.Quit();
-                    return;
-                }
+                Rng = (Excel.Range)xlSht.Range["P1"];
+                
+                string nameFAH = Rng.Value != null? Rng.Value.ToString().Trim() : "";
 
                 iLastRow = xlSht.Cells[xlSht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row; //последняя заполненная строка в столбце А
                 iLastCol = xlSht.Cells[4, xlSht.Columns.Count].End[Excel.XlDirection.xlToLeft].Column; //последний заполненный столбец в 1-й строке
 
 
-                Rng = (Excel.Range)xlSht.Range["A4", xlSht.Cells[iLastRow, iLastCol]]; //пример записи диапазона ячеек в переменную Rng
+                Rng = (Excel.Range)xlSht.Range["A5", xlSht.Cells[iLastRow, iLastCol]]; //пример записи диапазона ячеек в переменную Rng
                 var dataArr = (object[,])Rng.Value; //чтение данных из ячеек в массив
-                //xlSht.get_Range("K1").get_Resize(dataArr.GetUpperBound(0), dataArr.GetUpperBound(1)).Value = dataArr; //выгрузка массива на лист
+                                                    //xlSht.get_Range("K1").get_Resize(dataArr.GetUpperBound(0), dataArr.GetUpperBound(1)).Value = dataArr; //выгрузка массива на лист
+
+                if (nameFAH +".xls" != fahName || dataArr[1,4] != null)
+                {
+                    MessageBoxResult result2 = System.Windows.MessageBox.Show("Этот файл не содержит данных по потерям.\n\nСодержимое файла не соответствует требуемому!", "Неверный файл", MessageBoxButton.OK, MessageBoxImage.Information);
+                    xlWB.Close(true);
+                    xlApp.Quit();
+                    return;
+                }
+
 
                 int j = dataArr.GetLength(0);
                 int recCount = 0;
@@ -80,19 +83,16 @@ namespace EMonitor
                 {
                     for (int i = 1; i <= j; i++)
                     {
-                        if (dataArr[i, 15].ToString() == "Ф" && dataArr[i, 1].ToString() == newPeriod)
+                        if (dataArr[i, 1].ToString() == newPeriod)
                         {
-                            EnergyMonthUse eu = new EnergyMonthUse();
-                            eu.Period = dataArr[i, 1].ToString();
-                            eu.IdDepartMade = Convert.ToInt32(dataArr[i, 2].ToString().TrimStart('0'));
-                            eu.IdEnergyResource = Convert.ToInt32(dataArr[i, 3]);
-                            eu.IdOrganization = dataArr[i, 5] != null ? Convert.ToInt32(dataArr[i, 5]) : 0;
-                            eu.IdCostCenter = dataArr[i, 6] != null ? Convert.ToInt32(dataArr[i, 6].ToString().TrimStart('0')) : 0;
-                            eu.IdProduct = Convert.ToInt32(dataArr[i, 7]);
-                            eu.Fact = dataArr[i, 10] != null ? Convert.ToDouble(dataArr[i, 10]) : 0;
-                            eu.Plan = dataArr[i, 11] != null ? Convert.ToDouble(dataArr[i, 11]) : 0;
-                            eu.Fabricate = dataArr[i, 14] != null ? Convert.ToDouble(dataArr[i, 14]) : 0;
-                            db.EnergyMonthUses.Add(eu);
+                            Losse eu = new Losse();
+                            eu.DatePeriod = dataArr[i, 1].ToString();
+                            eu.IdOrganization = Convert.ToInt32(dataArr[i, 2]);
+                            eu.IdCostCenter = Convert.ToInt32(dataArr[i, 3].ToString().TrimStart('0'));
+                            eu.Fact = Convert.ToDouble(dataArr[i, 7]);
+                            eu.IdEnergyResource = Convert.ToInt32(dataArr[i, 16]);
+                            eu.IdDepartMade = Convert.ToInt32(dataArr[i, 19].ToString().TrimStart('0'));
+                            db.Losses.Add(eu);
                             recCount++;
                         }
                     }

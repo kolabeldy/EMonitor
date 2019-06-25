@@ -23,7 +23,6 @@ namespace EMonitor.DB
         public virtual DbSet<ViewLossesFact> ViewLossesFacts { get; set; }
         public virtual DbSet<ViewTariff> ViewTariffs { get; set; }
         public virtual DbSet<ViewERPrice> ViewERPrices { get; set; }
-
-
+        public virtual DbSet<Losse> Losses { get; set; }
     }
 }
