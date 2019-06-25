@@ -1,12 +1,8 @@
 ﻿using EMonitor.DB;
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace EMonitor
@@ -50,11 +46,10 @@ namespace EMonitor
                 string xlFileName;
 
                 xlFileName = dlg.FileName;
-                Excel.Application xlApp = new Excel.Application(); //создаём приложение Excel
+                Excel.Application xlApp = new Excel.Application(); 
 
-
-                xlWB = xlApp.Workbooks.Open(xlFileName); //открываем наш файл           
-                xlSht = xlWB.ActiveSheet; //или так xlSht = xlWB.ActiveSheet //активный лист
+                xlWB = xlApp.Workbooks.Open(xlFileName);           
+                xlSht = xlWB.ActiveSheet; 
 
                 Rng = (Excel.Range)xlSht.Range["P1"];
                 
@@ -64,9 +59,9 @@ namespace EMonitor
                 iLastCol = xlSht.Cells[4, xlSht.Columns.Count].End[Excel.XlDirection.xlToLeft].Column; //последний заполненный столбец в 1-й строке
 
 
-                Rng = (Excel.Range)xlSht.Range["A5", xlSht.Cells[iLastRow, iLastCol]]; //пример записи диапазона ячеек в переменную Rng
+                Rng = (Excel.Range)xlSht.Range["A5", xlSht.Cells[iLastRow, iLastCol]]; 
                 var dataArr = (object[,])Rng.Value; //чтение данных из ячеек в массив
-                                                    //xlSht.get_Range("K1").get_Resize(dataArr.GetUpperBound(0), dataArr.GetUpperBound(1)).Value = dataArr; //выгрузка массива на лист
+                //xlSht.get_Range("K1").get_Resize(dataArr.GetUpperBound(0), dataArr.GetUpperBound(1)).Value = dataArr; //выгрузка массива на лист
 
                 if (nameFAH +".xls" != fahName || dataArr[1,4] != null)
                 {
@@ -100,13 +95,13 @@ namespace EMonitor
                 }
                 if (recCount > 0)
                 {
-                    MessageBoxResult result1 = System.Windows.MessageBox.Show(string.Format("Данные потерь за период {0} успешно импортированы.\n\nДобавлено {1} записей.", newPeriod, recCount.ToString()),
-                                                                    "Поздравляю", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBoxResult result1 = System.Windows.MessageBox.Show(string.Format("Данные потерь за период {0} успешно импортированы.\n\nДобавлено {1} записей.", 
+                        newPeriod, recCount.ToString()),"Поздравляю", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    MessageBoxResult result1 = System.Windows.MessageBox.Show(string.Format("Данные потерь за период {0} не обнаружены.\n\nДобавлено {1} записей.", newPeriod, recCount.ToString()),
-                                                                    "Нет данных", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBoxResult result1 = System.Windows.MessageBox.Show(string.Format("Данные потерь за период {0} не обнаружены.\n\nДобавлено {1} записей.", 
+                        newPeriod, recCount.ToString()), "Нет данных", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 xlWB.Close(true);
                 xlApp.Quit();

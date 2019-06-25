@@ -277,8 +277,6 @@ namespace EMonitor.Frames
             using (db = new MyDBContext())
             {
                 db.ViewResults.Load();
-
-                db.ViewResults.Load();
                 var qrySource = from o in db.ViewResults.ToList()
                                 where o.Year * 100 + o.Month >= StartYear * 100 + StartMonth
                                 where o.Year * 100 + o.Month <= EndYear * 100 + EndMonth
