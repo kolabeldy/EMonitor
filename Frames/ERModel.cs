@@ -79,20 +79,20 @@ namespace EMonitor.Frames
             }
         }
 
-        private int _selectedCostCenter;
-        public int SelectedCostCenter
-        {
-            get
-            {
-                return _selectedCostCenter;
-            }
-            set
-            {
-                _selectedCostCenter = value;
-                IsFilterChanged = true;
-                RaisePropertyChanged(() => SelectedCostCenter);
-            }
-        }
+        //private int _selectedCostCenter;
+        //public int SelectedCostCenter
+        //{
+        //    get
+        //    {
+        //        return _selectedCostCenter;
+        //    }
+        //    set
+        //    {
+        //        _selectedCostCenter = value;
+        //        IsFilterChanged = true;
+        //        RaisePropertyChanged(() => SelectedCostCenter);
+        //    }
+        //}
 
         private int _selectedER;
         public int SelectedER
@@ -264,7 +264,7 @@ namespace EMonitor.Frames
             StartMonth = 1;
             EndYear = DateTime.Now.Year;
             EndMonth = DateTime.Now.Month - 1;
-            SelectedCostCenter = 0;
+            //SelectedCostCenter = 0;
             SelectedER = 955;
             RBCostIsChecked = false;
             YearListFill();
@@ -297,7 +297,7 @@ namespace EMonitor.Frames
                            where o.Year * 100 + o.Month >= StartYear * 100 + StartMonth
                            where o.Year * 100 + o.Month <= EndYear * 100 + EndMonth
                            where o.IdEnergyResource == SelectedER
-                           where SelectedCostCenter == 0 ? true : o.IdCostCenter == SelectedCostCenter
+                           //where SelectedCostCenter == 0 ? true : o.IdCostCenter == SelectedCostCenter
 
                            group o by new { o.IdEnergyResource, o.Period } into gr
                            orderby gr.Max(m => m.Year), gr.Max(m => m.Month)
@@ -561,7 +561,7 @@ namespace EMonitor.Frames
                              select new { o.Name });
 
             string resName = resName1.ToList()[0].Name.ToString();
-            string resCostCenter = SelectedCostCenter == 0 ? "ПАО ХИМПРОМ" : "ЦЗ-" + SelectedCostCenter.ToString();
+            string resCostCenter = "ПАО ХИМПРОМ";
             using (db = new MyDBContext())
             {
 

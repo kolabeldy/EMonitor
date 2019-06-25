@@ -94,7 +94,20 @@ namespace EMonitor.Frames
                 RaisePropertyChanged(() => EndMonth);
             }
         }
-        public string ChartCaption { get; set; }
+        private string _chartCaption;
+        public string ChartCaption
+        {
+            get
+            {
+                return _chartCaption;
+            }
+            set
+            {
+                _chartCaption = value;
+                IsFilterChanged = true;
+                RaisePropertyChanged(() => ChartCaption);
+            }
+        }
 
         private bool _isFilterChanged;
         public bool IsFilterChanged
