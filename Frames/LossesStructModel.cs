@@ -304,7 +304,7 @@ namespace EMonitor.Frames
                                ERName = o.ERName,
                                FactTotal = o.FactTotal,
                                FactLoss = o.FactLoss,
-                               FactTotalCost = o.FactTotalCost,
+                               FactTotalCost = o.Month >= 4 && o.Month < 10 ? o.FactTotal * a.CostSummer : o.FactTotal * a.CostWinter,
                                FactLossCost = o.Month >= 4 && o.Month <10 ? o.FactLoss * a.CostSummer : o.FactLoss * a.CostWinter,
                            };
                 var filterRezult1 = from o in filterRezult

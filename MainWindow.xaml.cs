@@ -115,5 +115,11 @@ namespace EMonitor
             frameReports.Content = null;
             frameReports.Content = new LossesStruct();
         }
+
+        private void BtnPrimeER_Checked(object sender, RoutedEventArgs e)
+        {
+            frameReports.Content = null;
+            frameReports.Content = new PrimeER();
+        }
     }
 }

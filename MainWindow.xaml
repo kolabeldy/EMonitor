@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Name="mainWin"
     Title="Использование энергоресурсов ПАО Химпром"
-    Width="1500"
+    Width="1800"
     Height="1000"
     MinWidth="1500"
     MinHeight="800"
@@ -57,9 +57,8 @@
                         FontSize="14"
                         Foreground="Black"
                         ToolBar.OverflowMode="Never">
-
                         <Label
-                            Content="Анализ энергоиспользования"
+                            Content="Итоги"
                             FontWeight="Bold"
                             Foreground="#FF2467AA" />
                         <RadioButton
@@ -67,10 +66,22 @@
                             Margin="20,0,0,0"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Left"
-                            Checked="BtnMonitor_Checked"
-                            FontWeight="Bold">
+                            Checked="BtnMonitor_Checked">
                             <TextBlock Text="срез за период" />
                         </RadioButton>
+                        <RadioButton
+                            x:Name="BtnPrimeER"
+                            Margin="20,0,0,0"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            Checked="BtnPrimeER_Checked">
+                            <TextBlock Text="потребление первичных" />
+                        </RadioButton>
+
+                        <Label
+                            Content="Анализ энергоиспользования"
+                            FontWeight="Bold"
+                            Foreground="#FF2467AA" />
 
                         <RadioButton
                             x:Name="btnCostCenters"

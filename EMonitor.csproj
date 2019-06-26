@@ -144,6 +144,10 @@
     <Compile Include="DB\ViewYear.cs" />
     <Compile Include="Frames\ChartCCViewModel.cs" />
     <Compile Include="Frames\ChartERViewModel.cs" />
+    <Compile Include="Frames\PrimeERModel.cs" />
+    <Compile Include="Frames\PrimeER.xaml.cs">
+      <DependentUpon>PrimeER.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Frames\LossesStructModel.cs" />
     <Compile Include="Frames\LossesStruct.xaml.cs">
       <DependentUpon>LossesStruct.xaml</DependentUpon>
@@ -188,6 +192,10 @@
     <Compile Include="MainWindowModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Page Include="Frames\PrimeER.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Frames\LossesStruct.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
