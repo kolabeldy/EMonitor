@@ -234,6 +234,7 @@
                             Content="Справочники"
                             FontWeight="Bold"
                             Foreground="#FF2467AA" />
+
                         <RadioButton
                             x:Name="BtnSpravER"
                             Margin="20,0,0,0"
