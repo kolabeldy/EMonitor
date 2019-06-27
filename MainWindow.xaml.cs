@@ -76,6 +76,7 @@ namespace EMonitor
         private void BtnSpravER_Checked(object sender, RoutedEventArgs e)
         {
             frameReports.Content = null;
+            frameReports.Content = new References();
         }
 
         private void BtnSpravTariff_Checked(object sender, RoutedEventArgs e)

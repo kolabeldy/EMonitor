@@ -130,6 +130,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DB\ViewTariffFull.cs" />
     <Compile Include="DB\Losse.cs" />
     <Compile Include="DB\CostCenter.cs" />
     <Compile Include="DB\EnergyResource.cs" />
@@ -144,6 +145,9 @@
     <Compile Include="DB\ViewYear.cs" />
     <Compile Include="Frames\ChartCCViewModel.cs" />
     <Compile Include="Frames\ChartERViewModel.cs" />
+    <Compile Include="Frames\References.xaml.cs">
+      <DependentUpon>References.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Frames\PrimeERModel.cs" />
     <Compile Include="Frames\PrimeER.xaml.cs">
       <DependentUpon>PrimeER.xaml</DependentUpon>
@@ -182,6 +186,7 @@
     <Compile Include="Frames\Favorit.xaml.cs">
       <DependentUpon>Favorit.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Frames\ReferencesModel.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Frames\Trend.xaml.cs">
       <DependentUpon>Trend.xaml</DependentUpon>
@@ -192,6 +197,10 @@
     <Compile Include="MainWindowModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Page Include="Frames\References.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Frames\PrimeER.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

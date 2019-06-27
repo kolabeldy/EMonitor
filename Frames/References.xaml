@@ -1,0 +1,160 @@
+﻿<Page
+    x:Class="EMonitor.Frames.References"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:EMonitor.Frames"
+    xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="CostCentres"
+    d:DesignHeight="1200"
+    d:DesignWidth="1200"
+    mc:Ignorable="d">
+    <Page.Resources>
+        <CollectionViewSource x:Key="ItemsTariff" Source="{Binding TariffList}" />
+        <CollectionViewSource x:Key="ItemsUnit" Source="{Binding UnitList}" />
+    </Page.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="1.5*" />
+            <RowDefinition Height="350" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <Border
+                Grid.Column="0"
+                Margin="15,30,10,10"
+                BorderBrush="LightGray"
+                BorderThickness="1">
+
+
+                <Grid VerticalAlignment="Stretch">
+                    <DataGrid
+                        x:Name="ERGrid"
+                        Margin="10,10,10,40"
+                        VerticalAlignment="Top"
+                        AlternatingRowBackground="White"
+                        AutoGenerateColumns="False"
+                        Background="Transparent"
+                        BorderBrush="LightGray"
+                        BorderThickness="1,1,1,1"
+                        CanUserAddRows="False"
+                        CanUserDeleteRows="False"
+                        CanUserResizeColumns="False"
+                        FontFamily="Segoe UI"
+                        FontSize="11"
+                        GridLinesVisibility="All"
+                        HorizontalGridLinesBrush="LightGray"
+                        ItemsSource="{Binding ERList}"
+                        RowHeaderWidth="15"
+                        ScrollViewer.CanContentScroll="True"
+                        ScrollViewer.VerticalScrollBarVisibility="Visible"
+                        SelectedItem="{Binding SelectedER}"
+                        SelectionMode="Single"
+                        VerticalGridLinesBrush="LightGray">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="{x:Type DataGridColumnHeader}">
+                                <Setter Property="FontWeight" Value="Bold" />
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.Columns>
+
+                            <DataGridTextColumn
+                                Width="50"
+                                MinWidth="40"
+                                Binding="{Binding Id}"
+                                Header="Код" />
+
+                            <DataGridTextColumn
+                                Width="2*"
+                                Binding="{Binding Name}"
+                                Header="Энергоресурс">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style>
+                                        <Setter Property="TextBlock.TextAlignment" Value="Left" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <DataGridComboBoxColumn
+                                Width="50"
+                                DisplayMemberPath="Name"
+                                Header="ЕдИзм"
+                                ItemsSource="{Binding Source={StaticResource ItemsUnit}}"
+                                SelectedValueBinding="{Binding Unit}"
+                                SelectedValuePath="Id" />
+
+                            <DataGridCheckBoxColumn
+                                Width="1*"
+                                Binding="{Binding IsPrime}"
+                                Header="Первичный"
+                                IsReadOnly="True" />
+
+                            <DataGridCheckBoxColumn
+                                Width="1*"
+                                Binding="{Binding IsMain}"
+                                Header="Основной" />
+
+                            <DataGridCheckBoxColumn
+                                Width="1*"
+                                Binding="{Binding IsActual}"
+                                Header="Действующий" />
+
+                            <DataGridComboBoxColumn
+                                Width="1*"
+                                DisplayMemberPath="TariffWinter"
+                                Header="Тариф зимн."
+                                IsReadOnly="True"
+                                ItemsSource="{Binding Source={StaticResource ItemsTariff}}"
+                                SelectedValueBinding="{Binding Id}"
+                                SelectedValuePath="Id" />
+
+                            <DataGridComboBoxColumn
+                                Width="1*"
+                                DisplayMemberPath="TariffSummer"
+                                Header="Тариф летн."
+                                IsReadOnly="True"
+                                ItemsSource="{Binding Source={StaticResource ItemsTariff}}"
+                                SelectedValueBinding="{Binding Id}"
+                                SelectedValuePath="Id" />
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Button
+                        Width="75"
+                        Margin="0,0,10,10"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Command="{Binding SaveCommand}"
+                        CommandParameter="{Binding SelectedPhone}"
+                        Content="Button" />
+                </Grid>
+            </Border>
+        </Grid>
+        <StackPanel
+            Grid.Row="0"
+            Grid.ColumnSpan="2"
+            Margin="0,0,0,0"
+            Background="WhiteSmoke">
+            <TextBox
+                x:Name="ChartCaption"
+                MinWidth="150"
+                Margin="0,8,0,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Background="Transparent"
+                BorderThickness="0"
+                FontSize="18"
+                FontWeight="Bold"
+                Text="{Binding ChartCaption, Mode=TwoWay}" />
+        </StackPanel>
+        <StackPanel Grid.Row="4" Background="LightGray" />
+    </Grid>
+</Page>
