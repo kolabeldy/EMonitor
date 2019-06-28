@@ -509,14 +509,6 @@
                             Margin="5,0,0,0"
                             Command="{Binding ExportCommand}"
                             Content="Excel" />
-                        <Button
-                            x:Name="btnCancel"
-                            Width="75"
-                            Height="23"
-                            Margin="5,0,0,0"
-                            CommandParameter="{Binding ElementName=OperationGrid, Path=SelectedItem.Id}"
-                            Content="Закрыть"
-                            IsCancel="True" />
                     </StackPanel>
                 </Grid>
             </Grid>

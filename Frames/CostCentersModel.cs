@@ -13,6 +13,7 @@ using System.Windows;
 using GalaSoft.MvvmLight.Command;
 using System.Windows.Input;
 using LiveCharts.Defaults;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace EMonitor.Frames
 {
@@ -125,6 +126,7 @@ namespace EMonitor.Frames
                 RaisePropertyChanged(() => ChartCaption);
             }
         }
+        private string cCaption;
 
         private bool _isFilterChanged;
         public bool IsFilterChanged
@@ -182,6 +184,7 @@ namespace EMonitor.Frames
             }
         }
 
+        public List<ViewResult> ChartList { get; set; }
 
         private List<CostCenter> _costCenterList;
         public List<CostCenter> CostCenterList
@@ -231,7 +234,7 @@ namespace EMonitor.Frames
             SeriesCollection = new SeriesCollection();
             SeriesCollection1 = new SeriesCollection();
             Labels = new ObservableCollection<string>();
-
+            ChartList = new List<ViewResult>();
             EndYearMonthFill();
 
             SelectedCostCenter = 0;
@@ -372,18 +375,19 @@ namespace EMonitor.Frames
                 var qry3 = from o in MonthUseList
                            where o.FactCost>=Total * Proc / 100
                            orderby o.FactCost descending
-                           select new
+                           select new 
                            {
                                o.FactCost,
                                o.ResourceName
                            };
                 var qry4 = from o in MonthUseList
                            where o.FactCost < Total * Proc / 100
-                           select new
+                           select new 
                            {
                                o.FactCost,
                                o.ResourceName
                            };
+
                 double Total1 = qry4.Sum(n => n.FactCost);
 
                 var qry5 = from o in MonthUseList
@@ -467,7 +471,7 @@ namespace EMonitor.Frames
             ChartCaptionFill();
             IsFilterChanged = false;
         }
-    private void ChartCaptionFill()
+        private void ChartCaptionFill()
         {
             string resCostCenter = SelectedCostCenter == 0 ? "ПАО ХИМПРОМ" : "ЦЗ-" + SelectedCostCenter.ToString();
             string selres = !IsChoiseResource ? "все ресурсы" : "избранные ресурсы";
@@ -483,8 +487,176 @@ namespace EMonitor.Frames
             {
                 period = string.Format("за период с: {0} по: {1}", date1, date2);
             }
-            ChartCaption = string.Format("Фактическое потребление энергоресурсов {0} {1} {2} ({3} > {4}%)", 
+            ChartCaption = string.Format("Потребление энергоресурсов {0} {1} {2} ({3} > {4}%)", 
                 resCostCenter, period, unit, selres, Proc);
+            cCaption = string.Format("Потребление энергоресурсов {0} {1} {2} ({3})",
+                resCostCenter, period, unit, selres);
+        }
+        public ICommand ExportCommand { get { return new RelayCommand<int>(OnExport); } }
+        private void OnExport(int numToEdit = 0)
+        {
+            int len1 = MonthUseList.Count();
+            int len2 = 9;
+            int len3;
+            int len4;
+
+            object[,] arrRes = new object[len1, len2];
+            object[,] arrChart = new object[len1, 2];
+            object[] arrCaption = new object[]{ "Код", "Ресурс", "ЕдИзм", "План", "Факт", "Откл", "ПланРуб", "ФактРуб", "ОтклРуб" };
+            object[] arrCaption1 = new object[] {"Ресурс", "ФактРуб"};
+            DBListToArray();
+            ArrToExcel();
+
+            void DBListToArray()
+            {
+                int i = 0;
+
+                foreach (var r in MonthUseList)
+                {
+                    arrRes[i, 0] = r.IdEnergyResource;
+                    arrRes[i, 1] = r.ResourceName;
+                    arrRes[i, 2] = r.UnitName;
+                    arrRes[i, 3] = r.Plan;
+                    arrRes[i, 4] = r.Fact;
+                    arrRes[i, 5] = r.Difference;
+                    arrRes[i, 6] = r.PlanCost;
+                    arrRes[i, 7] = r.FactCost;
+                    arrRes[i, 8] = r.DifferenceCost;
+                    i++;
+                }
+                var qry2 = from o in MonthUseList
+                           select new
+                           {
+                               o.FactCost,
+                               o.DifferenceCost,
+                               o.ResourceName
+                           };
+                double Total = qry2.Sum(n => n.FactCost);
+
+                var qry3 = from o in MonthUseList
+                           where o.FactCost >= Total * Proc / 100
+                           orderby o.FactCost descending
+                           select new
+                           {
+                               o.FactCost,
+                               o.ResourceName
+                           };
+                var qry4 = from o in MonthUseList
+                           where o.FactCost < Total * Proc / 100
+                           select new
+                           {
+                               o.FactCost,
+                               o.ResourceName
+                           };
+                double Total1 = qry4.Sum(n => n.FactCost);
+                int j = 0;
+                ChartList.Clear();
+                foreach (var newY in qry3.ToList())
+                {
+                    ViewResult r = new ViewResult();
+                    r.ResourceName = newY.ResourceName;
+                    r.FactCost = newY.FactCost;
+                    ChartList.Add(r);
+                    j++;
+                }
+                ViewResult s = new ViewResult();
+                s.ResourceName = "Прочие";
+                s.FactCost = Total1;
+                ChartList.Add(s);
+
+                len3 = ChartList.Count();
+                len4 = 2;
+
+                
+                i = 0;
+
+                foreach (var l in ChartList)
+                {
+                    arrChart[i, 0] = l.ResourceName;
+                    arrChart[i, 1] = l.FactCost;
+                    i++;
+                }
+
+            }
+
+
+            void ArrToExcel()
+            {
+                Excel.Application ex = new Excel.Application();
+
+                //ex.SheetsInNewWorkbook = 1;
+                //Excel.Workbook workBook = ex.Workbooks.Add(Type.Missing);
+
+                ex.Workbooks.Open(AppDomain.CurrentDomain.BaseDirectory + @"tmpcostcenters.xlsx",
+                  Type.Missing, Type.Missing, Type.Missing, Type.Missing,
+                  Type.Missing, Type.Missing, Type.Missing, Type.Missing,
+                  Type.Missing, Type.Missing, Type.Missing, Type.Missing,
+                  Type.Missing, Type.Missing);
+
+
+                ex.DisplayAlerts = true;
+                Excel.Worksheet sheet = (Excel.Worksheet)ex.Worksheets.get_Item(1);
+                sheet.Name = "ЦентрыЗатрат";
+
+                Excel.Range c1 = (Excel.Range)sheet.Cells[1, 1];
+                Excel.Range c2 = (Excel.Range)sheet.Cells[1, 1];
+
+                Excel.Range rangeCapt = sheet.get_Range(c1, c2);
+                rangeCapt.Value = cCaption;
+
+                c1 = (Excel.Range)sheet.Cells[3, 1];
+                c2 = (Excel.Range)sheet.Cells[3, 9];
+                Excel.Range rangeCaption = sheet.get_Range(c1, c2);
+                rangeCaption.Value = arrCaption;
+
+                c1 = (Excel.Range)sheet.Cells[4, 1];
+                c2 = (Excel.Range)sheet.Cells[4 + len1 - 1, 9];
+                Excel.Range range = sheet.get_Range(c1, c2);
+                range.Value = arrRes;
+
+                sheet = (Excel.Worksheet)ex.Worksheets.get_Item(2);
+                c1 = (Excel.Range)sheet.Cells[1, 1];
+                c2 = (Excel.Range)sheet.Cells[1, 1];
+
+                rangeCapt = sheet.get_Range(c1, c2);
+                rangeCapt.Value = "Структура фактического потребления, руб.";
+
+                c1 = (Excel.Range)sheet.Cells[3, 1];
+                c2 = (Excel.Range)sheet.Cells[3, 2];
+                rangeCaption = sheet.get_Range(c1, c2);
+                rangeCaption.Value = arrCaption1;
+
+                c1 = (Excel.Range)sheet.Cells[4, 1];
+                c2 = (Excel.Range)sheet.Cells[4 + len3 - 1, 2];
+                range = sheet.get_Range(c1, c2);
+                range.Value = arrChart;
+
+                ex.Visible = true;
+                ex.DisplayAlerts = true;
+
+                //Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                //dlg.FileName = "CostCenters01"; // Default file name
+                //dlg.DefaultExt = ".xlsx"; // Default file extension
+                //dlg.Filter = "Книга Excel (.xlsx)|*.xlsx"; // Filter files by extension
+                //dlg.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                //Nullable<bool> result = dlg.ShowDialog();
+
+                //if (result == true)
+                //{
+                //    string filename = dlg.FileName;
+                //    ex.Application.ActiveWorkbook.SaveAs(filename + @"", Type.Missing,
+                //              Type.Missing, Type.Missing, Type.Missing, Type.Missing, Excel.XlSaveAsAccessMode.xlNoChange,
+                //              Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+                //    ex.WindowState = Excel.XlWindowState.xlMaximized;
+                //    MessageBoxResult result1 = System.Windows.MessageBox.Show("Отчёт успешно сформирован",
+                //              "Поздравляю",
+                //              MessageBoxButton.OK,
+                //              MessageBoxImage.Information);
+                //    //ex.Visible = true;
+                //}
+                //ex.Quit();
+
+            }
         }
 
     }
